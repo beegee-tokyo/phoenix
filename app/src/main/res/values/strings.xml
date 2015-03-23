@@ -1,12 +1,12 @@
 <resources>
-    <string name="app_name">Phoenix</string>
-    <string name="icon">Icon</string>
+    <string name="app_name" translatable="false">Phoenix</string>
+    <string name="icon" translatable="false">Icon</string>
     <string name="list_app_name">Application name</string>
     <string name="rebootDay">Reboot interval selection</string>
     <string name="rebootTimer">Reboot time selection</string>
     <string name="installedApps">Autostart App selection</string>
     <string name="curr_settings">Current</string>
-    <string name="default0">0</string>
+    <string name="default0" translatable="false">0</string>
     <string name="error_txt">Error</string>
     <string name="miss_app_txt">Please select an application for automatic start after
         reboot!</string>

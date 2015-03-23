@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="curr_settings">Aktuell</string>
+    <string name="error_txt">Problem</string>
+    <string name="installedApps">Autostart App Auswahl</string>
+    <string name="list_app_name">Applikationsname</string>
+    <string name="miss_app_txt">Bitte eine App fuer automatischen Start auswaehlen!</string>
+    <string name="miss_int_txt">Bitte ein Intervall fuer den Neustart auswaehlen!</string>
+    <string name="miss_time_txt">Bitte eine Zeit fuer den Neustart auswaehlen!</string>
+    <string name="rebootDay">Neustart Intervall Auswahl</string>
+    <string name="rebootTimer">Neustart Uhrzeit Auswahl</string>
+
+    <string-array name="intervals">
+        <item>jeden Tag</item>
+        <item>jeden 2. Tag</item>
+        <item>jeden 3. Tag</item>
+        <item>jeden 4. Tag</item>
+        <item>jeden 5. Tag</item>
+        <item>jeden 6. Tag</item>
+        <item>jede Woche</item>
+        <item>jeden 8. Tag</item>
+        <item>jeden 9. Tag</item>
+        <item>jeden 10. Tag</item>
+        <item>jeden 11. Tag</item>
+        <item>jeden 12. Tag</item>
+        <item>jeden 13. Tag</item>
+        <item>alle 2 Wochen</item>
+        <item>jeden 15. Tag</item>
+        <item>jeden 16. Tag</item>
+        <item>jeden 17. Tag</item>
+        <item>jeden 18. Tag</item>
+        <item>jeden 19. Tag</item>
+        <item>jeden 20. Tag</item>
+        <item>alle 3 Wochen</item>
+        <item>jeden 22. Tag</item>
+        <item>jeden 23. Tag</item>
+        <item>jeden 24. Tag</item>
+        <item>jeden 25. Tag</item>
+        <item>jeden 26. Tag</item>
+        <item>jeden 27. Tag</item>
+        <item>alle 4 Wochen</item>
+        <item>jeden 29. Tag</item>
+        <item>jeden 30. Tag</item>
+    </string-array>
+
+    <string-array name="times">
+        <item>um 1 Uhr</item>
+        <item>um 2 Uhr</item>
+        <item>um 3 Uhr</item>
+        <item>um 4 Uhr</item>
+        <item>um 5 Uhr</item>
+        <item>um 6 Uhr</item>
+        <item>um 7 Uhr</item>
+        <item>um 8 Uhr</item>
+        <item>um 9 Uhr</item>
+        <item>um 10 Uhr</item>
+        <item>um 11 Uhr</item>
+        <item>um 12 Uhr</item>
+        <item>um 13 Uhr</item>
+        <item>um 14 Uhr</item>
+        <item>um 15 Uhr</item>
+        <item>um 16 Uhr</item>
+        <item>um 17 Uhr</item>
+        <item>um 18 Uhr</item>
+        <item>um 19 Uhr</item>
+        <item>um 20 Uhr</item>
+        <item>um 21 Uhr</item>
+        <item>um 22 Uhr</item>
+        <item>um 23 Uhr</item>
+        <item>Mitternach</item>
+    </string-array>
+</resources>
