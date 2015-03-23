@@ -31,11 +31,11 @@ import java.util.List;
 import java.util.Map;
 
 
-public class AutoReboot extends ActionBarActivity implements View
+public class Phoenix extends ActionBarActivity implements View
 .OnClickListener {
 
 	// For debug uses
-	private static final String LOG_TAG = "AutoReboot_Bernd";
+	private static final String LOG_TAG = "Phoenix_Aktivity";
 
 	// For access to shared preferences
 	private SharedPreferences mPrefs;

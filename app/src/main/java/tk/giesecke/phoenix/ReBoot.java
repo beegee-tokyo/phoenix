@@ -17,7 +17,7 @@ public class ReBoot extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		final String LOG_TAG = "ReBoot_Bernd";
+		final String LOG_TAG = "Phoenix_ReBoot";
 
 		// Get name of launcher (we don't want to kill him yet!)
 		Intent home = new Intent("android.intent.action.MAIN");

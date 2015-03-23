@@ -13,7 +13,7 @@ import java.util.GregorianCalendar;
 
 public class AutoStart extends BroadcastReceiver {
 
-	private static final String LOG_TAG = "AutoStart_Bernd";
+	private static final String LOG_TAG = "Phoenix_AutoStart";
 
 	public AutoStart() {
 	}
