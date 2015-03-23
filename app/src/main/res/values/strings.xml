@@ -1,0 +1,75 @@
+<resources>
+    <string name="app_name">Phoenix</string>
+    <string name="icon">Icon</string>
+    <string name="list_app_name">Application name</string>
+    <string name="rebootDay">Reboot interval selection</string>
+    <string name="rebootTimer">Reboot time selection</string>
+    <string name="installedApps">Autostart App selection</string>
+    <string name="curr_settings">Current</string>
+    <string name="default0">0</string>
+    <string name="error_txt">Error</string>
+    <string name="miss_app_txt">Please select an application for automatic start after
+        reboot!</string>
+    <string name="miss_int_txt">Please select an interval for the reboot!</string>
+    <string name="miss_time_txt">Please select a time for the reboot!</string>
+
+    <string-array name="intervals">
+        <item>every day</item>
+        <item>every 2 days</item>
+        <item>every 3 days</item>
+        <item>every 4 days</item>
+        <item>every 5 days</item>
+        <item>every 6 days</item>
+        <item>every week</item>
+        <item>every 8 days</item>
+        <item>every 9 days</item>
+        <item>every 10 days</item>
+        <item>every 11 days</item>
+        <item>every 12 days</item>
+        <item>every 13 days</item>
+        <item>every 2 weeks</item>
+        <item>every 15 days</item>
+        <item>every 16 days</item>
+        <item>every 17 days</item>
+        <item>every 18 days</item>
+        <item>every 19 days</item>
+        <item>every 20 days</item>
+        <item>every 3 weeks</item>
+        <item>every 22 days</item>
+        <item>every 23 days</item>
+        <item>every 24 days</item>
+        <item>every 25 days</item>
+        <item>every 26 days</item>
+        <item>every 27 days</item>
+        <item>every 4 weeks</item>
+        <item>every 29 days</item>
+        <item>every 30 days</item>
+    </string-array>
+
+    <string-array name="times">
+        <item>at 1 o\'clock</item>
+        <item>at 2 o\'clock</item>
+        <item>at 3 o\'clock</item>
+        <item>at 4 o\'clock</item>
+        <item>at 5 o\'clock</item>
+        <item>at 6 o\'clock</item>
+        <item>at 7 o\'clock</item>
+        <item>at 8 o\'clock</item>
+        <item>at 9 o\'clock</item>
+        <item>at 10 o\'clock</item>
+        <item>at 11 o\'clock</item>
+        <item>at 12 o\'clock</item>
+        <item>at 13 o\'clock</item>
+        <item>at 14 o\'clock</item>
+        <item>at 15 o\'clock</item>
+        <item>at 16 o\'clock</item>
+        <item>at 17 o\'clock</item>
+        <item>at 18 o\'clock</item>
+        <item>at 19 o\'clock</item>
+        <item>at 20 o\'clock</item>
+        <item>at 21 o\'clock</item>
+        <item>at 22 o\'clock</item>
+        <item>at 23 o\'clock</item>
+        <item>at midnight</item>
+    </string-array>
+</resources>

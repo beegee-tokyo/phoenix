@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:background="@drawable/menu_item_background_selector"
+              android:orientation="horizontal">
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/list_app_name"
+        android:id="@+id/tv_times"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="10dp"
+        android:background="@color/transparent"
+        android:textStyle="bold"
+        android:textAppearance="@android:style/TextAppearance.Medium"/>
+
+</LinearLayout>
