@@ -116,7 +116,7 @@ public class Phoenix extends ActionBarActivity implements View
 				nameIndex = installedAppNames.indexOf(appToStart);
 				intervalIndex = rebootInterval-1;
 				if (rebootTime == 0) {
-					timeIndex=24;
+					timeIndex=23;
 				} else {
 					timeIndex = rebootTime-1;
 				}

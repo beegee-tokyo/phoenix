@@ -20,6 +20,7 @@
         android:id="@+id/tv_app_name"
         android:layout_gravity="center_vertical"
         android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
         android:background="@color/transparent"
         android:textStyle="bold"
         android:textAppearance="@android:style/TextAppearance.Medium"/>

@@ -76,6 +76,7 @@
             android:text="@android:string/cancel"
             android:id="@+id/b_clear"
             android:layout_toStartOf="@+id/b_cancel"
+            android:layout_toLeftOf="@+id/b_cancel"
             android:layout_marginRight="10dp"
             android:layout_marginLeft="10dp"
             android:src="@drawable/clear"
@@ -90,6 +91,7 @@
             android:text="@android:string/cancel"
             android:id="@+id/b_cancel"
             android:layout_toStartOf="@+id/b_apply"
+            android:layout_toLeftOf="@+id/b_apply"
             android:layout_marginRight="10dp"
             android:layout_marginLeft="10dp"
             android:src="@drawable/cancel"
@@ -104,6 +106,7 @@
             android:text="@android:string/ok"
             android:id="@+id/b_apply"
             android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:src="@drawable/ok"
@@ -120,10 +123,14 @@
             android:id="@+id/textView"
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
             style="@android:style/TextAppearance.Small.Inverse"
             android:background="@color/transparent_grey"
             android:paddingEnd="20dp"
-            android:paddingStart="20sp"/>
+            android:paddingRight="20dp"
+            android:paddingStart="20sp"
+            android:paddingLeft="20sp"
+            tools:ignore="NewApi"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -132,7 +139,8 @@
             android:text="@string/app_name"
             android:id="@+id/tv_currApp"
             android:layout_below="@+id/textView"
-            android:layout_alignParentStart="true"/>
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -141,7 +149,8 @@
             android:text="@string/default0"
             android:id="@+id/tv_currInterval"
             android:layout_below="@+id/tv_currApp"
-            android:layout_alignParentStart="true"/>
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -149,10 +158,11 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="@string/default0"
             android:id="@+id/tv_currTime"
-            android:layout_alignParentStart="false"
             android:layout_toEndOf="@+id/tv_currInterval"
+            android:layout_toRightOf="@+id/tv_currInterval"
             android:layout_below="@+id/tv_currApp"
-            android:layout_marginStart="5dp"/>
+            android:layout_marginStart="5dp"
+            android:layout_marginLeft="5dp"/>
 
     </RelativeLayout>
 

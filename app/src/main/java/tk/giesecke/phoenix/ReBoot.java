@@ -19,6 +19,7 @@ public class ReBoot extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 		final String LOG_TAG = "Phoenix_ReBoot";
 
+		if (BuildConfig.DEBUG) Log.d(LOG_TAG, "Received reboot alarm");
 		// Get name of launcher (we don't want to kill him yet!)
 		Intent home = new Intent("android.intent.action.MAIN");
 		home.addCategory("android.intent.category.HOME");
