@@ -11,10 +11,21 @@ import android.util.Log;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+/** AutoStart
+ *
+ * receiver for reboot countdown timer
+ *
+ * @author Bernd Giesecke
+ * @version 1.0a March 23, 2015.
+ */
 public class AutoStart extends BroadcastReceiver {
 
+	/** Debug tag */
 	private static final String LOG_TAG = "Phoenix_AutoStart";
 
+	/**
+	 * receiver for reboot countdown timer
+	 */
 	public AutoStart() {
 	}
 
@@ -22,11 +33,17 @@ public class AutoStart extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 		if (intent.getAction().equalsIgnoreCase(Intent.ACTION_BOOT_COMPLETED)) {
 			if (BuildConfig.DEBUG) Log.d(LOG_TAG, "Boot completed");
+			/** Access to shared preferences */
 			SharedPreferences mPrefs = context.getSharedPreferences("AutoReboot", 0);
+			/** Time in milliseconds to next reboot */
 			long rebootSchedule = mPrefs.getLong("schedule", 0);
+			/** Time of day for reboot */
 			int rebootTime = mPrefs.getInt("time", 0);
+			/** Interval between reboots in days */
 			int rebootInterval = mPrefs.getInt("interval", 0);
+			/** Package name of the app-to-start */
 			String packageToStart = mPrefs.getString("package", "");
+			/** App name of the app-to-start */
 			String appToStart = mPrefs.getString("app", "");
 			if (BuildConfig.DEBUG) {
 				Log.d(LOG_TAG, "Day = "+rebootSchedule);
@@ -37,6 +54,7 @@ public class AutoStart extends BroadcastReceiver {
 			if ((rebootSchedule != 0) && (rebootTime != 0) && (!packageToStart.equalsIgnoreCase("")))
 			{
 				// Check if reboot date was due before reset
+				/** Calendar for reboot time calculation */
 				Calendar cur_cal = new GregorianCalendar();
 				cur_cal.setTimeInMillis(System.currentTimeMillis()); // Set calendar to current date/time
 				if (cur_cal.getTimeInMillis() > rebootSchedule) {
@@ -85,15 +103,19 @@ public class AutoStart extends BroadcastReceiver {
 				}
 
 				// Start the countdown for the reboot
+				/** Reboot.class intent */
 				Intent rebootIntent = new Intent(context, ReBoot.class);
+				/** Pending intent for alarm manager */
 				PendingIntent pendingIntent = PendingIntent.getBroadcast(
 						context, 11121963, rebootIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+				/** Alarm manager for reboot countdown */
 				AlarmManager alarmManager = (AlarmManager) context.getSystemService
 						(Context.ALARM_SERVICE);
 				alarmManager.set(AlarmManager.RTC_WAKEUP,
 						cur_cal.getTimeInMillis(), pendingIntent);
 
 				// Start application
+				/** app-to-start intent */
 				Intent packIntent = context.getPackageManager().getLaunchIntentForPackage
 						(packageToStart);
 				if (BuildConfig.DEBUG) Log.d(LOG_TAG, "Starting now = "+packageToStart);

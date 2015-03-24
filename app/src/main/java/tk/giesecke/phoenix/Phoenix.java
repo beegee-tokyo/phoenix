@@ -31,32 +31,55 @@ import java.util.List;
 import java.util.Map;
 
 
+/** Phoenix
+ *
+ * configuration activity
+ *
+ * @author Bernd Giesecke
+ * @version 1.0a March 23, 2015.
+ */
 public class Phoenix extends ActionBarActivity implements View
 .OnClickListener {
 
-	// For debug uses
+	/** Debug tag */
 	private static final String LOG_TAG = "Phoenix_Aktivity";
 
-	// For access to shared preferences
+	/** Access to shared preferences */
 	private SharedPreferences mPrefs;
 
-	// For display of current settings
+	/** Textview to show selected app */
 	private TextView tv_currApp;
+	/** Textview to show selected daily reboot interval */
 	private TextView tv_currInterval;
+	/** Textview to show selected reboot time of day */
 	private TextView tv_currTime;
 
-	// For application list handling
+	/** Array list holding installed app names */
 	private final ArrayList<String> installedAppNames = new ArrayList<>();
+	/** Array list holding installed package names */
 	private final ArrayList<String> installedPackageNames = new ArrayList<>();
+	/** Array list holding installed icon drawables */
 	private final ArrayList<Drawable> installedAppIcons = new ArrayList<>();
+	/** List holding the installed app names */
 	private String[] installedAppsNamesArray;
+	/** List holding the installed package names */
 	private String[] installedPacksNamesArray;
 
 	// For reboot day and time calculation
+	/** Selected package name */
 	private String packageToStart;
+	/** Selected application name */
 	private String appToStart;
+	/** Selected daily reboot interval */
 	private int rebootInterval;
+	/** selected reboot time of day */
 	private int rebootTime;
+
+	/**
+	 * configuration activity
+	 */
+	public Phoenix() {
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -76,10 +99,13 @@ public class Phoenix extends ActionBarActivity implements View
 		getInstalledApps();
 
 		// Register listeners for the buttons
+		/** Button to cancel changes */
 		ImageButton b_cancel = (ImageButton) this.findViewById(R.id.b_cancel);
 		b_cancel.setOnClickListener(this);
+		/** Button to apply action */
 		ImageButton b_ok = (ImageButton) this.findViewById(R.id.b_apply);
 		b_ok.setOnClickListener(this);
+		/** Button to clear data and exit */
 		ImageButton b_clear = (ImageButton) this.findViewById(R.id.b_clear);
 		b_clear.setOnClickListener(this);
 
@@ -104,6 +130,7 @@ public class Phoenix extends ActionBarActivity implements View
 		installedAppsNamesArray = installedAppNames.toArray(installedAppsNamesArray);
 		installedPacksNamesArray = new String[installedAppNames.size()];
 		installedPacksNamesArray = installedPackageNames.toArray(installedPacksNamesArray);
+		/** List holding the application icons */
 		Drawable[] installedAppsIconArray = new Drawable[installedAppIcons.size()];
 		installedAppsIconArray = installedAppIcons.toArray(installedAppsIconArray);
 
@@ -124,9 +151,11 @@ public class Phoenix extends ActionBarActivity implements View
 			}
 		}
 
+		/** ListView adapter for app list */
 		InstalledAppsList appsListAdapter = new InstalledAppsList(this,installedAppsNamesArray,
 				installedAppsIconArray);
 
+		/** pointer to ListView for app list */
 		ListView lv_installedApps = (ListView) findViewById(R.id.lv_installedApps);
 		lv_installedApps.setAdapter(appsListAdapter);
 		if (hasHistory) {
@@ -144,8 +173,11 @@ public class Phoenix extends ActionBarActivity implements View
 		});
 
 		// Show the list with selectable reset interval
+		/** List with available intervals for reboot */
 		String[] intervalDays = getResources().getStringArray(R.array.intervals);
+		/** pointer to ListView for interval list */
 		ListView lv_rebootDay = (ListView) findViewById(R.id.lv_rebootDay);
+		/** ListView adapter for interval list */
 		IntervalList intervalArrayAdapter = new IntervalList(this,intervalDays);
 		lv_rebootDay.setAdapter(intervalArrayAdapter);
 		if (hasHistory) {
@@ -162,8 +194,11 @@ public class Phoenix extends ActionBarActivity implements View
 		});
 
 		// Show the list with selectable reset times
+		/** List with available reset times for reboot */
 		String[] resetTime = getResources().getStringArray(R.array.times);
+		/** pointer to ListView for reset times list */
 		ListView lv_rebootTimer = (ListView) findViewById(R.id.lv_rebootTimer);
+		/** ListView adapter for reset times list */
 		TimeList resetTimeArrayAdapter = new TimeList(this,resetTime);
 		lv_rebootTimer.setAdapter(resetTimeArrayAdapter);
 		if (hasHistory) {
@@ -183,6 +218,13 @@ public class Phoenix extends ActionBarActivity implements View
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
+			/**
+			 * apply
+			 * requests root access (needs root and su installed)
+			 * checks selected app, interval and time
+			 * info is saved in shared preferences
+			 * start countdown timer to initiate reboot
+			 */
 			case R.id.b_apply:
 				// Request for root access
 				try {
@@ -213,6 +255,7 @@ public class Phoenix extends ActionBarActivity implements View
 				if (rebootTime == 24) { // midnight
 					rebootTime = 0; // set time to midnight
 				}
+				/** Calendar for reboot time calculation */
 				Calendar cur_cal = new GregorianCalendar();
 				cur_cal.setTimeInMillis(System.currentTimeMillis()); // Set calendar to current date/time
 				cur_cal.add(Calendar.DAY_OF_MONTH,rebootInterval); // add interval days to calendar
@@ -270,25 +313,41 @@ public class Phoenix extends ActionBarActivity implements View
 					Log.d(LOG_TAG, "App = "+ appToStart);
 				}
 				// Start the countdown for the reboot
+				/** Reboot.class intent */
 				Intent rebootIntent = new Intent(this, ReBoot.class);
+				/** Pending intent for alarm manager */
 				PendingIntent pendingIntent = PendingIntent.getBroadcast(
 						this, 11121963, rebootIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+				/** Alarm manager for reboot countdown */
 				AlarmManager alarmManager = (AlarmManager) this.getSystemService
 						(Context.ALARM_SERVICE);
 				alarmManager.set(AlarmManager.RTC_WAKEUP,
 						cur_cal.getTimeInMillis(), pendingIntent);
 
-				// Close the app
 				finish();
 				System.exit(0);
 				break;
+			/**
+			 * cancel
+			 * just close the app
+			 * no stored data is changed
+			 */
 			case R.id.b_cancel:
-				// Close the app
 				finish();
 				System.exit(0);
 				break;
+			/**clear
+			 * deletes all stored data
+			 * stop eventually running countdown timer for reboot
+			 * close the app
+			 */
 			case R.id.b_clear:
-				// Close the app and clear settings
+				rebootIntent = new Intent(this, ReBoot.class);
+				pendingIntent = PendingIntent.getBroadcast(
+						this, 11121963, rebootIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+				alarmManager = (AlarmManager) this.getSystemService
+						(Context.ALARM_SERVICE);
+				alarmManager.cancel(pendingIntent);
 				mPrefs.edit().clear().apply();
 				finish();
 				System.exit(0);
@@ -296,6 +355,12 @@ public class Phoenix extends ActionBarActivity implements View
 		}
 	}
 
+	/**
+	 * Get a list of all installed packages
+	 *  <p> installedAppNames => storage for the app names.
+	 *  <p> installedPackageNames => storage for the package names.
+	 *  <p> installedAppIcons => storage for the app icons.
+	 */
 	private void getInstalledApps() {
 		List<PackageInfo> packs = getPackageManager().getInstalledPackages(0);
 		String appName;
@@ -319,6 +384,14 @@ public class Phoenix extends ActionBarActivity implements View
 		}
 	}
 
+	/**
+	 * Sort lists in the same order as the key list
+	 *
+	 * @param key
+	 *            list that is used for sorting
+	 * @param lists
+	 *            lists that are sorted in the same order as the key list
+	 */
 	private static <T extends Comparable<T>> void concurrentSort(
 			final List<T> key, List<?>... lists){
 		// Create a List of indices
@@ -369,9 +442,16 @@ public class Phoenix extends ActionBarActivity implements View
 		return mPackageManager.getLaunchIntentForPackage(packageName) != null;
 	}
 
-	//*******************************************************
-	//  Customized alert
-	// *******************************************************
+	/**
+	 * Display custom alert dialog
+	 *
+	 * @param context
+	 *            application context. Can not be null.
+	 * @param title
+	 *            title of the dialog box.
+	 * @param message
+	 *            text inside the dialog box.
+	 */
 	private static void myAlert(Context context, String title, String message) {
 
 		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(

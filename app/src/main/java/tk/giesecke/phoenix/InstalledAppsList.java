@@ -10,11 +10,31 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+/** InstalledAppsList
+ *
+ * array adapter for app list view
+ *
+ * @author Bernd Giesecke
+ * @version 1.0a March 23, 2015.
+ */
 class InstalledAppsList extends ArrayAdapter<String> {
+	/** Application context */
 	private final Activity context;
+	/** List of app names */
 	private final String[] appName;
+	/** List of app icons */
 	private final Drawable[] appIcon;
 
+	/**
+	 * Array adapter for app list view
+	 *
+	 * @param context
+	 *            application context
+	 * @param appName
+	 *            list of app names
+	 * @param appIcon
+	 *            list of app icons
+	 */
 	public InstalledAppsList(Activity context,
 	                  String[] appName, Drawable[] appIcon) {
 		super(context, R.layout.installed_apps, appName);
@@ -24,10 +44,14 @@ class InstalledAppsList extends ArrayAdapter<String> {
 	}
 	@Override
 	public View getView(int position, View view, ViewGroup parent) {
+		/** Layout inflater for apps list view */
 		LayoutInflater inflater = context.getLayoutInflater();
+		/** Row inflater */
 		@SuppressLint({"ViewHolder", "InflateParams"}) View rowView= inflater.inflate
 				(R.layout.installed_apps, null, true);
+		/** Text view to show app name */
 		TextView txtAppName = (TextView) rowView.findViewById(R.id.tv_app_name);
+		/** Image view to show app icon */
 		ImageView imageView = (ImageView) rowView.findViewById(R.id.iv_app_icon);
 		txtAppName.setText(appName[position]);
 		imageView.setImageDrawable(appIcon[position]);
