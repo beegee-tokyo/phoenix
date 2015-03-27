@@ -77,4 +77,5 @@
     <string name="cancel_dialog">Keine Daten geändert.</string>
     <string name="clear_dialog">Die gespeicherten Einstellungen wurden gelöscht. Neustart ist abgeschalten.</string>
     <string name="alertReset">Test der Neustart Funktion. ACHTUNG, wenn Sie OK drücken wird Ihr Gerät einen Neustart durchführen.</string>
+    <string name="alertResetTitle">ACHTUNG!!!!</string>
 </resources>
