@@ -1,6 +1,7 @@
 package tk.giesecke.phoenix;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
@@ -13,12 +14,18 @@ import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.NumberPicker;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -38,8 +45,7 @@ import java.util.Map;
  * @author Bernd Giesecke
  * @version 1.0a March 23, 2015.
  */
-public class Phoenix extends ActionBarActivity implements View
-.OnClickListener {
+public class Phoenix extends ActionBarActivity implements View.OnClickListener {
 
 	/** Debug tag */
 	private static final String LOG_TAG = "Phoenix_Aktivity";
@@ -74,6 +80,32 @@ public class Phoenix extends ActionBarActivity implements View
 	private int rebootInterval;
 	/** selected reboot time of day */
 	private int rebootTime;
+	/** selected app to start or none */
+	private boolean hasAppToStart;
+	/** selected soft or hard reboot */
+	private boolean isSoftReboot;
+
+	// For initial display of saved preferences
+	/** Saved values available */
+	private boolean hasHistory;
+	/** Saved interval */
+	private int intervalIndex;
+	/** Saved time */
+	private int timeIndex;
+	/** Saved app to start */
+	private int nameIndex;
+	/** List with available intervals for reboot */
+	String[] intervalDays;
+	/** List with available time of day for reboot */
+	String[] resetTime;
+
+	// For delayed closing of the application
+	/** Activity context */
+	private static Activity activity;
+	/** Boolean for myAlert to close app or not */
+	private static boolean doFinish = false;
+	/** Boolean for myAlert to reset device or not */
+	private static boolean doReset = false;
 
 	/**
 	 * configuration activity
@@ -84,6 +116,9 @@ public class Phoenix extends ActionBarActivity implements View
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		setTheme(R.style.AppTheme_Base);
+
 		if (android.os.Build.VERSION.SDK_INT >= 21) {
 			getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
@@ -91,6 +126,14 @@ public class Phoenix extends ActionBarActivity implements View
 		}
 
 		setContentView(R.layout.phoenix);
+
+		// Activate toolbar
+		Toolbar actionBar = (Toolbar) findViewById(R.id.toolbar);
+		if (actionBar != null) {
+			setSupportActionBar(actionBar);
+		}
+
+		activity = this;
 
 		// Get pointer to shared preferences
 		mPrefs = getSharedPreferences("AutoReboot", 0);
@@ -108,6 +151,15 @@ public class Phoenix extends ActionBarActivity implements View
 		/** Button to clear data and exit */
 		ImageButton b_clear = (ImageButton) this.findViewById(R.id.b_clear);
 		b_clear.setOnClickListener(this);
+		/** Button to test reboot function */
+		Button b_testReboot = (Button) this.findViewById(R.id.b_testReboot);
+		b_testReboot.setOnClickListener(this);
+		/** Button to show interval dialog on small screens */
+		Button b_rebootDay = (Button) this.findViewById(R.id.b_rebootDay);
+		b_rebootDay.setOnClickListener(this);
+		/** Button to show time of day dialog on small screens */
+		Button b_rebootTime = (Button) this.findViewById(R.id.b_rebootTime);
+		b_rebootTime.setOnClickListener(this);
 
 		// Get pointers for current settings
 		tv_currApp = (TextView) this.findViewById(R.id.tv_currApp);
@@ -115,13 +167,11 @@ public class Phoenix extends ActionBarActivity implements View
 		tv_currTime = (TextView) this.findViewById(R.id.tv_currTime);
 
 		packageToStart = mPrefs.getString("package","");
-		appToStart = mPrefs.getString("app",getResources().getString(R.string.app_name));
-		rebootInterval = mPrefs.getInt("interval",99);
-		rebootTime = mPrefs.getInt("time",99);
-
-		tv_currApp.setText(appToStart);
-		tv_currInterval.setText(String.valueOf(rebootInterval)+" day");
-		tv_currTime.setText(String.valueOf(rebootTime)+" o'clock");
+		appToStart = mPrefs.getString("app","");
+		rebootInterval = mPrefs.getInt("interval", 1);
+		rebootTime = mPrefs.getInt("time",1);
+		hasAppToStart = mPrefs.getBoolean("app_start",true);
+		isSoftReboot = mPrefs.getBoolean("soft_reboot",false);
 
 		// Show the list of installed apps
 		concurrentSort(installedAppNames, installedAppNames, installedAppIcons,installedPackageNames);
@@ -134,19 +184,17 @@ public class Phoenix extends ActionBarActivity implements View
 		Drawable[] installedAppsIconArray = new Drawable[installedAppIcons.size()];
 		installedAppsIconArray = installedAppIcons.toArray(installedAppsIconArray);
 
-		boolean hasHistory = false;
-		int nameIndex = 0;
-		int intervalIndex = 0;
-		int timeIndex = 0;
+		hasHistory = false;
+		nameIndex = 0;
+		intervalIndex = rebootInterval-1;
+		if (rebootTime == 0) {
+			timeIndex=23;
+		} else {
+			timeIndex = rebootTime-1;
+		}
 		if (!packageToStart.equalsIgnoreCase("")) {
 			if (installedAppNames.contains(appToStart)) {
 				nameIndex = installedAppNames.indexOf(appToStart);
-				intervalIndex = rebootInterval-1;
-				if (rebootTime == 0) {
-					timeIndex=23;
-				} else {
-					timeIndex = rebootTime-1;
-				}
 				hasHistory = true;
 			}
 		}
@@ -158,10 +206,8 @@ public class Phoenix extends ActionBarActivity implements View
 		/** pointer to ListView for app list */
 		ListView lv_installedApps = (ListView) findViewById(R.id.lv_installedApps);
 		lv_installedApps.setAdapter(appsListAdapter);
-		if (hasHistory) {
-			lv_installedApps.setItemChecked(nameIndex, true);
-			lv_installedApps.smoothScrollToPosition(nameIndex);
-		}
+		lv_installedApps.setItemChecked(nameIndex, true);
+		lv_installedApps.smoothScrollToPosition(nameIndex);
 		lv_installedApps.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
@@ -169,50 +215,100 @@ public class Phoenix extends ActionBarActivity implements View
 				packageToStart = installedPacksNamesArray[position];
 				appToStart = installedAppsNamesArray[position];
 				tv_currApp.setText(appToStart);
+				nameIndex = position;
 			}
 		});
 
-		// Show the list with selectable reset interval
-		/** List with available intervals for reboot */
-		String[] intervalDays = getResources().getStringArray(R.array.intervals);
-		/** pointer to ListView for interval list */
-		ListView lv_rebootDay = (ListView) findViewById(R.id.lv_rebootDay);
-		/** ListView adapter for interval list */
-		IntervalList intervalArrayAdapter = new IntervalList(this,intervalDays);
-		lv_rebootDay.setAdapter(intervalArrayAdapter);
-		if (hasHistory) {
-			lv_rebootDay.setItemChecked(intervalIndex, true);
-			lv_rebootDay.smoothScrollToPosition(intervalIndex);
-		}
-		lv_rebootDay.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+		// Initialize the NumberPicker with selectable reset interval
+		NumberPicker.OnValueChangeListener onIntervalChanged
+				=new NumberPicker.OnValueChangeListener() {
 			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-			                        int position, long id) {
-				rebootInterval = (int) id+1;
-				tv_currInterval.setText(String.valueOf(rebootInterval)+" day");
+			public void onValueChange(
+					NumberPicker picker,
+					int oldVal,
+					int newVal) {
+				String[] values=picker.getDisplayedValues();
+				rebootInterval = newVal+1;
+				intervalIndex = newVal;
+				tv_currInterval.setText(values[newVal]);
+			}
+		};
+
+		// Get list with available intervals for reboot
+		intervalDays = getResources().getStringArray(R.array.intervals);
+		/** pointer to NumberPicker for interval list */
+		NumberPicker np_rebootDay=
+				(NumberPicker) findViewById(R.id.np_rebootDay);
+		np_rebootDay.setSaveFromParentEnabled(false);
+		np_rebootDay.setSaveEnabled(true);
+		np_rebootDay.setMaxValue(intervalDays.length-1);
+		np_rebootDay.setMinValue(0);
+		np_rebootDay.setDisplayedValues(intervalDays);
+		np_rebootDay.setOnValueChangedListener(onIntervalChanged);
+		np_rebootDay.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+		np_rebootDay.setValue(intervalIndex);
+
+		// Initialize the NumberPicker with selectable time of days
+		NumberPicker.OnValueChangeListener onTimeChanged
+				=new NumberPicker.OnValueChangeListener() {
+			@Override
+			public void onValueChange(
+					NumberPicker picker,
+					int oldVal,
+					int newVal) {
+				String[] values=picker.getDisplayedValues();
+				rebootTime = newVal + 1;
+				timeIndex = newVal;
+				tv_currTime.setText(values[newVal]);
+			}
+		};
+
+		// Get list with available time of day for reboot
+		resetTime = getResources().getStringArray(R.array.times);
+		/** pointer to NumberPicker for time of day list */
+		NumberPicker np_rebootTime=
+				(NumberPicker) findViewById(R.id.np_rebootTime);
+		np_rebootTime.setSaveFromParentEnabled(false);
+		np_rebootTime.setSaveEnabled(true);
+		np_rebootTime.setMaxValue(resetTime.length-1);
+		np_rebootTime.setMinValue(0);
+		np_rebootTime.setDisplayedValues(resetTime);
+		np_rebootTime.setOnValueChangedListener(onTimeChanged);
+		np_rebootTime.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+		np_rebootTime.setValue(timeIndex);
+
+		// Show the Switch for app autostart selection
+		/** pointer to Switch for app autostart selection */
+		Switch sw_autoStart = (Switch) findViewById(R.id.sw_autoStart);
+		sw_autoStart.setChecked(hasAppToStart);
+		sw_autoStart.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView,
+			                             boolean isChecked) {
+				hasAppToStart = isChecked;
 			}
 		});
 
-		// Show the list with selectable reset times
-		/** List with available reset times for reboot */
-		String[] resetTime = getResources().getStringArray(R.array.times);
-		/** pointer to ListView for reset times list */
-		ListView lv_rebootTimer = (ListView) findViewById(R.id.lv_rebootTimer);
-		/** ListView adapter for reset times list */
-		TimeList resetTimeArrayAdapter = new TimeList(this,resetTime);
-		lv_rebootTimer.setAdapter(resetTimeArrayAdapter);
-		if (hasHistory) {
-			lv_rebootTimer.setItemChecked(timeIndex, true);
-			lv_rebootTimer.smoothScrollToPosition(timeIndex);
-		}
-		lv_rebootTimer.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+		// Show the Switch for soft or hard reboot selection
+		/** pointer to Switch for soft or hard reboot selection */
+		Switch sw_softReboot = (Switch) findViewById(R.id.sw_softReboot);
+		sw_softReboot.setChecked(isSoftReboot);
+		sw_softReboot.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-			                        int position, long id) {
-				rebootTime = (int) id + 1;
-				tv_currTime.setText(String.valueOf(rebootTime) + " o'clock");
+			public void onCheckedChanged(CompoundButton buttonView,
+			                             boolean isChecked) {
+				isSoftReboot = isChecked;
 			}
 		});
+
+		// Show current selection
+		tv_currApp.setText(appToStart);
+		tv_currInterval.setText(intervalDays[rebootInterval-1]);
+		if (rebootTime == 0) {
+			tv_currTime.setText(resetTime[23]);
+		} else {
+			tv_currTime.setText(resetTime[rebootTime-1]);
+		}
 	}
 
 	@Override
@@ -234,21 +330,21 @@ public class Phoenix extends ActionBarActivity implements View
 				}
 
 				// Check if an app was selected
-				if (packageToStart.equalsIgnoreCase("")) {
+				if (packageToStart.equalsIgnoreCase("") && hasAppToStart) {
 					myAlert(this, getString(R.string.error_txt),
-							getString(R.string.miss_app_txt));
+							getString(R.string.miss_app_txt), false);
 					return;
 				}
 				// Check if an interval was selected
 				if (rebootInterval == 99) {
 					myAlert(this, getString(R.string.error_txt),
-							getString(R.string.miss_int_txt));
+							getString(R.string.miss_int_txt), false);
 					return;
 				}
 				// Check if a time was selected
 				if (rebootTime == 99) {
 					myAlert(this, getString(R.string.error_txt),
-							getString(R.string.miss_time_txt));
+							getString(R.string.miss_time_txt), false);
 					return;
 				}
 				// Calculate reboot date and time
@@ -258,9 +354,13 @@ public class Phoenix extends ActionBarActivity implements View
 				/** Calendar for reboot time calculation */
 				Calendar cur_cal = new GregorianCalendar();
 				cur_cal.setTimeInMillis(System.currentTimeMillis()); // Set calendar to current date/time
+				/** Current hour */
+				int curHour = cur_cal.get(Calendar.HOUR_OF_DAY);
 				cur_cal.add(Calendar.DAY_OF_MONTH,rebootInterval); // add interval days to calendar
-				// TODO just for testing, if interval is 1 day, start the reboot the same day
-				if (rebootInterval == 1) cur_cal.add(Calendar.DAY_OF_MONTH,(rebootInterval*(-1)));
+				// if daily reboot and reboot time is after current time then reboot 1st time today
+				if ((rebootInterval == 1) && (curHour < rebootTime)) {
+					cur_cal.add(Calendar.DAY_OF_MONTH,(rebootInterval*(-1)));
+				}
 				cur_cal.set(Calendar.HOUR_OF_DAY,rebootTime); // set calendar to requested time
 				cur_cal.set(Calendar.MINUTE,0);
 				cur_cal.set(Calendar.SECOND,0);
@@ -269,7 +369,7 @@ public class Phoenix extends ActionBarActivity implements View
 					int curYear = cur_cal.get(Calendar.YEAR);
 					int curMonth = cur_cal.get(Calendar.MONTH)+1;
 					int curDay = cur_cal.get(Calendar.DAY_OF_MONTH);
-					int curHour = cur_cal.get(Calendar.HOUR_OF_DAY);
+					curHour = cur_cal.get(Calendar.HOUR_OF_DAY);
 					int curMinute = cur_cal.get(Calendar.MINUTE);
 					int curSecond = cur_cal.get(Calendar.SECOND);
 					String curDateTime = String.valueOf(curYear)+"-"+
@@ -280,8 +380,9 @@ public class Phoenix extends ActionBarActivity implements View
 							String.valueOf(curSecond);
 					Log.d(LOG_TAG, "Current = "+curDateTime);
 					cur_cal.add(Calendar.DAY_OF_MONTH,rebootInterval); // add interval days to calendar
-					// TODO just for testing, if interval is 1 day, start the reboot the same day
-					if (rebootInterval == 1) cur_cal.add(Calendar.DAY_OF_MONTH,(rebootInterval*(-1)));
+					if ((rebootInterval == 1) && (curHour < rebootTime)) {
+						cur_cal.add(Calendar.DAY_OF_MONTH,(rebootInterval*(-1)));
+					}
 					cur_cal.set(Calendar.HOUR_OF_DAY,rebootTime); // set calendar to requested time
 					cur_cal.set(Calendar.MINUTE,0);
 					cur_cal.set(Calendar.SECOND,0);
@@ -304,13 +405,19 @@ public class Phoenix extends ActionBarActivity implements View
 				mPrefs.edit().putInt("interval", rebootInterval).apply();
 				mPrefs.edit().putString("package", packageToStart).apply();
 				mPrefs.edit().putString("app", appToStart).apply();
-				mPrefs.edit().putLong("schedule",cur_cal.getTimeInMillis()).apply();
+				mPrefs.edit().putLong("schedule", cur_cal.getTimeInMillis()).apply();
+				mPrefs.edit().putBoolean("app_start", hasAppToStart).apply();
+				mPrefs.edit().putBoolean("soft_reboot",isSoftReboot).apply();
 				if (BuildConfig.DEBUG) {
 					Log.d(LOG_TAG, "Schedule = "+cur_cal.getTimeInMillis());
 					Log.d(LOG_TAG, "Time = "+rebootTime);
 					Log.d(LOG_TAG, "Interval = "+rebootInterval);
 					Log.d(LOG_TAG, "Package = "+ packageToStart);
 					Log.d(LOG_TAG, "App = "+ appToStart);
+					Log.d(LOG_TAG, "App start = "+ mPrefs.getBoolean("app_start",
+							true)+" hasAppToStart = "+hasAppToStart);
+					Log.d(LOG_TAG, "Soft reboot = "+ mPrefs.getBoolean("soft_reboot",
+							true)+" isSoftReboot = "+isSoftReboot);
 				}
 				// Start the countdown for the reboot
 				/** Reboot.class intent */
@@ -324,8 +431,21 @@ public class Phoenix extends ActionBarActivity implements View
 				alarmManager.set(AlarmManager.RTC_WAKEUP,
 						cur_cal.getTimeInMillis(), pendingIntent);
 
-				finish();
-				System.exit(0);
+				String alertApply = getString(R.string.app_name) + " " +getString(R.string
+						.apply_dialog1) + " " + intervalDays[rebootInterval-1] + " ";
+
+				if (rebootTime == 0) {
+					alertApply = alertApply+resetTime[23];
+				} else {
+					alertApply = alertApply+resetTime[rebootTime-1];
+				}
+
+				if (hasAppToStart) {
+					alertApply = alertApply+" "+getString(R.string.apply_dialog2)+" "+appToStart;
+				}
+				alertApply = alertApply+".";
+				doFinish = true;
+				myAlert(this, getString(R.string.app_name),alertApply, true);
 				break;
 			/**
 			 * cancel
@@ -333,8 +453,22 @@ public class Phoenix extends ActionBarActivity implements View
 			 * no stored data is changed
 			 */
 			case R.id.b_cancel:
-				finish();
-				System.exit(0);
+				String alertCancel = getString(R.string.cancel_dialog) + " " +getString(R.string
+						.app_name) + " " +getString(R.string
+						.apply_dialog1) + " " + intervalDays[(mPrefs.getInt("interval",1))-1] + " ";
+				rebootTime = mPrefs.getInt("time",1);
+				if (rebootTime == 0) {
+					alertCancel = alertCancel+resetTime[23];
+				} else {
+					alertCancel = alertCancel+resetTime[rebootTime-1];
+				}
+
+				if (hasAppToStart) {
+					alertCancel = alertCancel+" "+getString(R.string.apply_dialog2)+" "+mPrefs.getString("app","");;
+				}
+				alertCancel = alertCancel+".";
+				doFinish = true;
+				myAlert(this, getString(R.string.app_name),alertCancel, true);
 				break;
 			/**clear
 			 * deletes all stored data
@@ -349,14 +483,119 @@ public class Phoenix extends ActionBarActivity implements View
 						(Context.ALARM_SERVICE);
 				alarmManager.cancel(pendingIntent);
 				mPrefs.edit().clear().apply();
-				finish();
-				System.exit(0);
+				String alertClear = getString(R.string.clear_dialog);
+				doFinish = true;
+				myAlert(this, getString(R.string.app_name), alertClear, true);
+				break;
+			/**rebootDay
+			 * Show dialog for interval settings on small screens
+			 */
+			case R.id.b_rebootDay:
+				AlertDialog.Builder intervalListBuilder = new AlertDialog.Builder(this);
+				LayoutInflater intervalListInflater = getLayoutInflater();
+				@SuppressLint("InflateParams") View intervalListView = intervalListInflater.inflate(R.layout.intervals, null);
+				intervalListBuilder.setView(intervalListView);
+				AlertDialog intervalList = intervalListBuilder.create();
+				intervalList.setTitle(getString(R.string.rebootDay));
+
+				intervalList.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.close_txt),
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int which) {
+							}
+						});
+
+				intervalList.show();
+				// Initialize the NumberPicker with selectable reset interval
+				NumberPicker.OnValueChangeListener onIntervalChanged
+						=new NumberPicker.OnValueChangeListener() {
+					@Override
+					public void onValueChange(
+							NumberPicker picker,
+							int oldVal,
+							int newVal) {
+						String[] values=picker.getDisplayedValues();
+						rebootInterval = newVal+1;
+						tv_currInterval.setText(values[newVal]);
+					}
+				};
+
+				/** List with available intervals for reboot */
+				String[] intervalDays = getResources().getStringArray(R.array.intervals);
+				/** pointer to NumberPicker for interval list */
+				NumberPicker np_rebootDay=
+						(NumberPicker) intervalListView.findViewById(R.id.np_rebootDay);
+				np_rebootDay.setMaxValue(intervalDays.length-1);
+				np_rebootDay.setMinValue(0);
+				np_rebootDay.setDisplayedValues(intervalDays);
+				np_rebootDay.setOnValueChangedListener(onIntervalChanged);
+				np_rebootDay.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+				if (hasHistory) {
+					np_rebootDay.setValue(intervalIndex);
+				}
+				break;
+			/**rebootTime
+			 * Show dialog for time of day settings on small screens
+			 */
+			case R.id.b_rebootTime:
+				AlertDialog.Builder timeListBuilder = new AlertDialog.Builder(this);
+				LayoutInflater timeListInflater = getLayoutInflater();
+				@SuppressLint("InflateParams") View timeListView = timeListInflater.inflate(R.layout.times, null);
+				timeListBuilder.setView(timeListView);
+				AlertDialog timeList = timeListBuilder.create();
+				timeList.setTitle(getString(R.string.rebootTime));
+
+				timeList.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.close_txt),
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int which) {
+							}
+						});
+
+				timeList.show();
+				// Initialize the NumberPicker with selectable time of days
+				NumberPicker.OnValueChangeListener onTimeChanged
+						=new NumberPicker.OnValueChangeListener() {
+					@Override
+					public void onValueChange(
+							NumberPicker picker,
+							int oldVal,
+							int newVal) {
+						String[] values=picker.getDisplayedValues();
+						rebootTime = newVal + 1;
+						tv_currTime.setText(values[newVal]);
+					}
+				};
+
+				/** List with available time of day for reboot */
+				String[] resetTime = getResources().getStringArray(R.array.times);
+				/** pointer to NumberPicker for time of day list */
+				NumberPicker np_rebootTime=
+						(NumberPicker) timeListView.findViewById(R.id.np_rebootTime);
+				np_rebootTime.setMaxValue(resetTime.length-1);
+				np_rebootTime.setMinValue(0);
+				np_rebootTime.setDisplayedValues(resetTime);
+				np_rebootTime.setOnValueChangedListener(onTimeChanged);
+				np_rebootTime.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+				if (hasHistory) {
+					np_rebootTime.setValue(timeIndex);
+				}
+				break;
+			/**testReboot
+			 * tests if this device allows reboots
+			 * ATTENTION, if this device allows reboots, it will actually reboot now!
+			 */
+			case R.id.b_testReboot:
+				if (BuildConfig.DEBUG) Log.d(LOG_TAG, "Testing reboot");
+				doReset = true;
+				myAlert(this, getString(R.string.app_name), getString(R.string.alertReset), true);
 				break;
 		}
 	}
 
 	/**
 	 * Get a list of all installed packages
+	 * @see <a href="http://www.androidsnippets
+	 * .com/get-installed-applications-with-name-package-name-version-and-icon">Get installed
+	 * Applications...</a>
 	 *  <p> installedAppNames => storage for the app names.
 	 *  <p> installedPackageNames => storage for the package names.
 	 *  <p> installedAppIcons => storage for the app icons.
@@ -386,6 +625,7 @@ public class Phoenix extends ActionBarActivity implements View
 
 	/**
 	 * Sort lists in the same order as the key list
+	 * @see <a href="https://ideone.com/cXdw6T">ideone.com - Sort multiple lists</a>
 	 *
 	 * @param key
 	 *            list that is used for sorting
@@ -429,6 +669,10 @@ public class Phoenix extends ActionBarActivity implements View
 
 	/**
 	 * Check if application can be launched
+	 * @see <a href="http://stackoverflow
+	 * .com/questions/2695746/how-to-get-a-list-of-installed-android-applications-and-pick-one-to
+	 * -run">rashant Agrawal - You can Find the List of installed apps ... ,
+	 * can start application</a>
 	 *
 	 * @param packageName
 	 *            package name of application. Can not be null.
@@ -452,7 +696,8 @@ public class Phoenix extends ActionBarActivity implements View
 	 * @param message
 	 *            text inside the dialog box.
 	 */
-	private static void myAlert(Context context, String title, String message) {
+	private static void myAlert(Context context, String title, String message,
+	                            boolean hasCancel) {
 
 		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
 				context);
@@ -464,12 +709,38 @@ public class Phoenix extends ActionBarActivity implements View
 		alertDialogBuilder
 				.setMessage(message)
 				.setCancelable(false)
+
 				.setPositiveButton(context.getResources().getString(android.R.string.ok),
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
 								dialog.cancel();
+								if (doFinish) {
+									activity.finish();
+									System.exit(0);
+								}
+								if (doReset) {
+									if (BuildConfig.DEBUG) Log.d(LOG_TAG, "Testing reboot");
+
+									/** Package name of home launcher */
+									String launcherName = ReBoot.getLauncherName(activity);
+
+									// Try to get all running apps and kill them before rebooting
+									ReBoot.killRunningApps(activity, launcherName);
+
+									// Now try to reboot the device
+									ReBoot.rebootDevice(activity);
+								}
 							}
 						});
+		if (hasCancel) {
+			alertDialogBuilder.setNegativeButton(context.getResources().getString(android.R.string.cancel),
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							dialog.cancel();
+							doReset = false;
+						}
+					});
+		}
 
 		// create alert dialog
 		AlertDialog alertDialog = alertDialogBuilder.create();

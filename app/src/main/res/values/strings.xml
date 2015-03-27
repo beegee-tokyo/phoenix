@@ -2,16 +2,30 @@
     <string name="app_name" translatable="false">Phoenix</string>
     <string name="icon" translatable="false">Icon</string>
     <string name="list_app_name">Application name</string>
-    <string name="rebootDay">Reboot interval selection</string>
-    <string name="rebootTimer">Reboot time selection</string>
+    <string name="rebootDay">Reboot interval</string>
+    <string name="rebootTime">Reboot time</string>
     <string name="installedApps">Autostart App selection</string>
-    <string name="curr_settings">Current</string>
+    <string name="curr_settings">Current selection</string>
     <string name="default0" translatable="false">0</string>
     <string name="error_txt">Error</string>
     <string name="miss_app_txt">Please select an application for automatic start after
         reboot!</string>
     <string name="miss_int_txt">Please select an interval for the reboot!</string>
     <string name="miss_time_txt">Please select a time for the reboot!</string>
+    <string name="autoStart">Start an app after reboot</string>
+    <string name="softReboot" translatable="false">Soft/Hot reboot?</string>
+    <string name="currAppTxt" translatable="false">App:</string>
+    <string name="currDayTxt" translatable="false">Reboot</string>
+    <string name="otherSettings">Other settings</string>
+    <string name="testReboot" translatable="false">Test reboot function</string>
+    <string name="testRebootButtonText" translatable="false">REBOOT</string>
+    <string name="close_txt">Close</string>
+    <string name="apply_dialog1">will reboot</string>
+    <string name="apply_dialog2">and start the app</string>
+    <string name="cancel_dialog">No data changed.</string>
+    <string name="clear_dialog">All stored settings are cleared. Auto reboot is disabled.</string>
+    <string name="alertReset">Test of reboot function. CAUTION!!! If you press OK your device will do a reset!</string>
+    <string name="alertResetTitle">CAUTION!!!</string>
 
     <string-array name="intervals">
         <item>every day</item>

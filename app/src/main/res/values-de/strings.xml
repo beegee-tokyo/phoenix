@@ -4,11 +4,11 @@
     <string name="error_txt">Problem</string>
     <string name="installedApps">Autostart App Auswahl</string>
     <string name="list_app_name">Applikationsname</string>
-    <string name="miss_app_txt">Bitte eine App fuer automatischen Start auswaehlen!</string>
-    <string name="miss_int_txt">Bitte ein Intervall fuer den Neustart auswaehlen!</string>
-    <string name="miss_time_txt">Bitte eine Zeit fuer den Neustart auswaehlen!</string>
-    <string name="rebootDay">Neustart Intervall Auswahl</string>
-    <string name="rebootTimer">Neustart Uhrzeit Auswahl</string>
+    <string name="miss_app_txt">Bitte eine App für automatischen Start auswählen!</string>
+    <string name="miss_int_txt">Bitte ein Intervall für den Neustart auswählen!</string>
+    <string name="miss_time_txt">Bitte eine Zeit für den Neustart auswählen!</string>
+    <string name="rebootDay">Neustart Intervall</string>
+    <string name="rebootTime">Neustart Uhrzeit</string>
 
     <string-array name="intervals">
         <item>jeden Tag</item>
@@ -69,4 +69,12 @@
         <item>um 23 Uhr</item>
         <item>Mitternach</item>
     </string-array>
+    <string name="autoStart">Starte App nach Neustart</string>
+    <string name="close_txt">Schliesse</string>
+    <string name="otherSettings">Weitere Einstellungen</string>
+    <string name="apply_dialog1">booten</string>
+    <string name="apply_dialog2">und startet die App</string>
+    <string name="cancel_dialog">Keine Daten geändert.</string>
+    <string name="clear_dialog">Die gespeicherten Einstellungen wurden gelöscht. Neustart ist abgeschalten.</string>
+    <string name="alertReset">Test der Neustart Funktion. ACHTUNG, wenn Sie OK drücken wird Ihr Gerät einen Neustart durchführen.</string>
 </resources>

@@ -8,5 +8,16 @@
     <color name="holo_orange_light">#ffffbb33</color>
     <!-- A dark Holo shade of orange -->
     <color name="holo_orange_dark">#ffff8800</color>
+    <!-- A light Holo shade of red -->
+    <color name="holo_red_light">#ffff4444</color>
+    <!-- A dark Holo shade of red -->
+    <color name="holo_red_dark">#ffcc0000</color>
+
+    <color name="colorPrimaryDark">@color/holo_orange_dark</color>
+    <color name="colorPrimary">@color/holo_orange_light</color>
+    <color name="colorPrimaryDark2">@color/holo_red_dark</color>
+    <color name="colorPrimary2">@color/holo_red_light</color>
+    <color name="dark_gray">#ff333333</color>
+    <color name="black_overlay">#66000000</color>
 
 </resources>

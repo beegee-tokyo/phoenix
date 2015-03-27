@@ -4,6 +4,7 @@ import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -19,15 +20,35 @@ import java.util.List;
  * @version 1.0a March 23, 2015.
  */
 public class ReBoot extends BroadcastReceiver {
+	/** Debug tag */
+	final static String LOG_TAG = "Phoenix_ReBoot";
+
 	public ReBoot() {
 	}
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		/** Debug tag */
-		final String LOG_TAG = "Phoenix_ReBoot";
-
 		if (BuildConfig.DEBUG) Log.d(LOG_TAG, "Received reboot alarm");
+
+		/** Package name of home launcher */
+		String launcherName = getLauncherName(context);
+
+		// Try to get all running apps and kill them before rebooting
+		killRunningApps(context, launcherName);
+
+		// Now try to reboot the device
+		rebootDevice(context);
+	}
+
+	/**
+	 * Get launcher name and make it visible
+	 * @see <a href="https://www.linkedin.com/groups/How-close-all-activities-in-86481.S.235755042">
+	 * Neeraj R. - How-close-all-activities...</a>
+	 *
+	 * @param context
+	 *            application context. Can not be null.
+	 */
+	public static String getLauncherName(Context context) {
 		// Get name of launcher (we don't want to kill him yet!)
 		/** Intent for home screen launcher */
 		Intent home = new Intent("android.intent.action.MAIN");
@@ -39,8 +60,20 @@ public class ReBoot extends BroadcastReceiver {
 		/** Package info of home screen launcher */
 		final ResolveInfo mInfo = context.getPackageManager().resolveActivity(home, 0);
 		/** Package name of home screen launcher */
-		String launcherName = mInfo.activityInfo.processName;
+		return mInfo.activityInfo.processName;
+	}
 
+	/**
+	 * Kill all running apps
+	 * @see <a href="http://stackoverflow.com/questions/6996536/how-to-close-all-active-applications-from-my-android-app/6996635#6996635">
+	 * How to close all active applications...</a>
+	 *
+	 * @param context
+	 *            application context. Can not be null.
+	 * @param launcherName
+	 *            package name of home launcher.
+	 */
+	public static void killRunningApps(Context context, String launcherName) {
 		// Try to get all running apps and kill them before rebooting
 		/** Package manager */
 		PackageManager pm = context.getPackageManager();
@@ -63,12 +96,38 @@ public class ReBoot extends BroadcastReceiver {
 			if (BuildConfig.DEBUG) Log.d(LOG_TAG, "Killing "+packageInfo.packageName);
 			mActivityManager.killBackgroundProcesses(packageInfo.packageName);
 		}
+	}
 
+	/**
+	 * Reboot the device
+	 * @see <a href="http://stackoverflow.com/questions/4580254/android-2-2-reboot-device-programmatically">
+	 * Reboot device programmatically</a>
+	 * @see <a href="http://stackoverflow.com/questions/12431304/programmatically-hotboot-hot-reboot-android-device">Programmatically HotBoot</a>
+	 *
+	 * @param context
+	 *            application context. Can not be null.
+	 */
+	public static void rebootDevice(Context context) {
 		// Now try to reboot the device
+		/** Access to shared preferences */
+		SharedPreferences mPrefs = context.getSharedPreferences("AutoReboot", 0);
+		/** Setting for soft or hard reboot */
+		boolean isSoftReboot = mPrefs.getBoolean("soft_reboot", false);
+		/** Part 1 of reboot command */
+		String suCommand1 = "su";
+		/** Part 2 of reboot command */
+		String suCommand2 = "-c";
+		/** Part 3 of reboot command */
+		String suCommand3 = "reboot"; // For hard reboot
+		if (isSoftReboot) { // If soft reboot is requested change 3rd part of reboot command to
+			suCommand3 = "busybox killall system_server";
+		}
+		/** Complete reboot command */
+		String[] rebootCommand = {suCommand1,suCommand2,suCommand3};
 		try {
 			if (BuildConfig.DEBUG) Log.d(LOG_TAG, "Reboot now");
 			/** Process for reboot */
-			Process proc = Runtime.getRuntime().exec(new String[] { "su", "-c", "reboot" });
+			Process proc = Runtime.getRuntime().exec(rebootCommand);
 			proc.waitFor();
 		} catch (Exception e) {
 			if (BuildConfig.DEBUG) Log.d(LOG_TAG, "Could not reboot", e);

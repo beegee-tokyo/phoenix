@@ -45,13 +45,16 @@ public class AutoStart extends BroadcastReceiver {
 			String packageToStart = mPrefs.getString("package", "");
 			/** App name of the app-to-start */
 			String appToStart = mPrefs.getString("app", "");
+			/** App name of the app-to-start */
+			Boolean hasAppToStart = mPrefs.getBoolean("app_start", true);
 			if (BuildConfig.DEBUG) {
 				Log.d(LOG_TAG, "Day = "+rebootSchedule);
 				Log.d(LOG_TAG, "Time = "+rebootTime);
 				Log.d(LOG_TAG, "Package = "+packageToStart);
 				Log.d(LOG_TAG, "App = "+appToStart);
+				Log.d(LOG_TAG, "App start = "+hasAppToStart);
 			}
-			if ((rebootSchedule != 0) && (rebootTime != 0) && (!packageToStart.equalsIgnoreCase("")))
+			if ((rebootSchedule != 0) && (rebootTime != 0))
 			{
 				// Check if reboot date was due before reset
 				/** Calendar for reboot time calculation */
@@ -114,12 +117,14 @@ public class AutoStart extends BroadcastReceiver {
 				alarmManager.set(AlarmManager.RTC_WAKEUP,
 						cur_cal.getTimeInMillis(), pendingIntent);
 
-				// Start application
-				/** app-to-start intent */
-				Intent packIntent = context.getPackageManager().getLaunchIntentForPackage
-						(packageToStart);
-				if (BuildConfig.DEBUG) Log.d(LOG_TAG, "Starting now = "+packageToStart);
-				context.startActivity(packIntent);
+				// Start application (if requested)
+				if (hasAppToStart && !appToStart.equalsIgnoreCase("")) {
+					/** app-to-start intent */
+					Intent packIntent = context.getPackageManager().getLaunchIntentForPackage
+							(packageToStart);
+					if (BuildConfig.DEBUG) Log.d(LOG_TAG, "Starting now = "+packageToStart);
+					context.startActivity(packIntent);
+				}
 			}
 		}
 	}

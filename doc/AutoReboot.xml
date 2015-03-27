@@ -1,8 +1,0 @@
-<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
-<map>
-    <long name="day" value="1427126170422" />
-    <int name="time" value="0" />
-    <string name="app">Alfred</string>
-    <string name="package">com.ivuu</string>
-    <int name="interval" value="1" />
-</map>
