@@ -34,7 +34,7 @@ import android.widget.TextView;
  * array adapter for app list view
  *
  * @author Bernd Giesecke
- * @version 3.0 May 3, 2015.
+ * @version 4.0 May 3, 2015.
  */
 class InstalledAppsList extends ArrayAdapter<String> {
 	/** Application context */

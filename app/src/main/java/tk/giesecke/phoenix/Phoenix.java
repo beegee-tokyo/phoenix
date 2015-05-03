@@ -66,7 +66,7 @@ import java.util.Map;
  * configuration activity
  *
  * @author Bernd Giesecke
- * @version 3.0 May 3, 2015.
+ * @version 4.0 May 3, 2015.
  */
 public class Phoenix extends ActionBarActivity implements View.OnClickListener {
 

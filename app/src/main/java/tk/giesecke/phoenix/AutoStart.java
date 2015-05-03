@@ -35,7 +35,7 @@ import java.util.GregorianCalendar;
  * receiver for reboot countdown timer
  *
  * @author Bernd Giesecke
- * @version 3.0 May 3, 2015.
+ * @version 4.0 May 3, 2015.
  */
 public class AutoStart extends BroadcastReceiver {
 
