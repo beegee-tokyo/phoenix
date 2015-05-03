@@ -86,4 +86,8 @@
         <item>at 23 o\'clock</item>
         <item>at midnight</item>
     </string-array>
+
+    <string name="banner_ad_unit_id" translatable="false">ca-app-pub-7770590286348676/8754806948</string>
+    <string name="banner_ad_unit_id_test" translatable="false">ca-app-pub-3940256099942544/6300978111</string>
+
 </resources>

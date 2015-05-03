@@ -35,7 +35,7 @@ import java.util.GregorianCalendar;
  * receiver for reboot countdown timer
  *
  * @author Bernd Giesecke
- * @version 1.0a March 23, 2015.
+ * @version 3.0 May 3, 2015.
  */
 public class AutoStart extends BroadcastReceiver {
 
@@ -137,12 +137,14 @@ public class AutoStart extends BroadcastReceiver {
 						cur_cal.getTimeInMillis(), pendingIntent);
 
 				// Start application (if requested)
-				if (hasAppToStart && !appToStart.equalsIgnoreCase("")) {
-					/** app-to-start intent */
-					Intent packIntent = context.getPackageManager().getLaunchIntentForPackage
-							(packageToStart);
-					if (BuildConfig.DEBUG) Log.d(LOG_TAG, "Starting now = "+packageToStart);
-					context.startActivity(packIntent);
+				if (appToStart != null) {
+					if (hasAppToStart && !appToStart.equalsIgnoreCase("")) {
+						/** app-to-start intent */
+						Intent packIntent = context.getPackageManager().getLaunchIntentForPackage
+								(packageToStart);
+						if (BuildConfig.DEBUG) Log.d(LOG_TAG, "Starting now = "+packageToStart);
+						context.startActivity(packIntent);
+					}
 				}
 			}
 		}

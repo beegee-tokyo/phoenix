@@ -36,7 +36,7 @@ import java.util.List;
  * receiver for reboot countdown timer
  *
  * @author Bernd Giesecke
- * @version 1.0a March 23, 2015.
+ * @version 3.0 May 3, 2015.
  */
 public class ReBoot extends BroadcastReceiver {
 	/** Debug tag */

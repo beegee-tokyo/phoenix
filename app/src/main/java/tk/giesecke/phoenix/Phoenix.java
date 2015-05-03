@@ -32,6 +32,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -46,6 +47,9 @@ import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -62,7 +66,7 @@ import java.util.Map;
  * configuration activity
  *
  * @author Bernd Giesecke
- * @version 1.0a March 23, 2015.
+ * @version 3.0 May 3, 2015.
  */
 public class Phoenix extends ActionBarActivity implements View.OnClickListener {
 
@@ -157,9 +161,6 @@ public class Phoenix extends ActionBarActivity implements View.OnClickListener {
 		// Get pointer to shared preferences
 		mPrefs = getSharedPreferences("AutoReboot", 0);
 
-		// Get list of current installed launch able apps
-		getInstalledApps();
-
 		// Register listeners for the buttons
 		/** Button to cancel changes */
 		ImageButton b_cancel = (ImageButton) this.findViewById(R.id.b_cancel);
@@ -192,8 +193,11 @@ public class Phoenix extends ActionBarActivity implements View.OnClickListener {
 		hasAppToStart = mPrefs.getBoolean("app_start",true);
 		isSoftReboot = mPrefs.getBoolean("soft_reboot",false);
 
+		// Get list of current installed launch able apps
+		getInstalledApps();
+
 		// Show the list of installed apps
-		concurrentSort(installedAppNames, installedAppNames, installedAppIcons,installedPackageNames);
+		concurrentSort(installedAppNames, installedAppNames, installedAppIcons, installedPackageNames);
 
 		installedAppsNamesArray = new String[installedAppNames.size()];
 		installedAppsNamesArray = installedAppNames.toArray(installedAppsNamesArray);
@@ -328,6 +332,20 @@ public class Phoenix extends ActionBarActivity implements View.OnClickListener {
 		} else {
 			tv_currTime.setText(resetTime[rebootTime-1]);
 		}
+
+		// Activate the advertisements
+		// Enable access to internet
+		if (android.os.Build.VERSION.SDK_INT > 9) {
+			/** ThreadPolicy to get permission to access internet */
+			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+			StrictMode.setThreadPolicy(policy);
+		}
+		/** View for Google Adsense ads */
+		AdView mAdView = (AdView) findViewById(R.id.adView);
+		/** Request for ad from Google */
+		AdRequest adRequest = new AdRequest.Builder().build();
+		mAdView.loadAd(adRequest);
+
 	}
 
 	@Override
@@ -483,7 +501,7 @@ public class Phoenix extends ActionBarActivity implements View.OnClickListener {
 				}
 
 				if (hasAppToStart) {
-					alertCancel = alertCancel+" "+getString(R.string.apply_dialog2)+" "+mPrefs.getString("app","");;
+					alertCancel = alertCancel+" "+getString(R.string.apply_dialog2)+" "+mPrefs.getString("app","");
 				}
 				alertCancel = alertCancel+".";
 				doFinish = true;
